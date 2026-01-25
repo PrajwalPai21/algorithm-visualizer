@@ -1,2 +1,4 @@
 # Algorithm-Visualizer
-A JavaFX-based desktop application that visually demonstrates algorithms by animating their step-by-step execution on data structures. Built using Java with a focus on learning core language concepts, algorithms, and clean software design.
+This project is a JavaFX-based algorithm visualizer that displays the step-by-step execution of algorithms using animated visual elements. Algorithms operate on arrays represented as bars, allowing users to clearly see comparisons, swaps, and data movement during execution.
+
+The project is built in Java with a focus on understanding core language concepts, algorithm behavior, and clean application structure.
