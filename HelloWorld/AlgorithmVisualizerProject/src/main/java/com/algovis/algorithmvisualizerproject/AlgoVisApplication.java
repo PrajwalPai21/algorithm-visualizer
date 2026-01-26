@@ -1,7 +1,7 @@
 package com.algovis.algorithmvisualizerproject;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
+//import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,13 +14,20 @@ public class AlgoVisApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Pane root = new Pane();
-        Rectangle rect = new Rectangle(100, 100, 50, 100);
-        Rectangle rect2 = new Rectangle(200, 200, 100, 200);
-        rect.setFill(Color.gray(0.5));
-        rect2.setFill(Color.rgb(0,0,255));
-        root.getChildren().add(rect);
-        root.getChildren().add(rect2);
 
+        int[] values = {10,20,30,40,50}; //Height of the bars
+        int x = 20;
+        Rectangle[] bars = new Rectangle[values.length];
+
+        for(int i=0;i<values.length;i++){
+            Rectangle bar = new Rectangle(x,200- values[i] , 40 , values[i]); //position
+            bar.setFill(Color.rgb((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256)));
+            bars[i] = bar;
+            root.getChildren().add(bar);
+            x+=50; //Gap between each bar
+        }
+
+        bars[1].setFill(Color.WHITESMOKE);
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
@@ -28,3 +35,7 @@ public class AlgoVisApplication extends Application {
         stage.show();
     }
 }
+
+//Rectangle rect = new Rectangle(100, 100, 50, 100);
+//rect.setFill(Color.gray(0.5));
+//root.getChildren().add(rect);
