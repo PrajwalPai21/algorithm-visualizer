@@ -79,7 +79,7 @@ public class AlgoVisApplication extends Application {
         timeline[0].setCycleCount(Timeline.INDEFINITE);
         timeline[0].play();
 
-        Label label = new Label("TEST");
+        Label label = new Label("Sorting Algorithms");
         root.getChildren().add(label);
 
         Scene scene = new Scene(root, 400, 300);
