@@ -35,23 +35,32 @@ public class AlgoVisApplication extends Application {
 //        bars[i].setFill(Color.RED);
 //        bars[i+1].setFill(Color.RED);
 
-        int[] j = {0};
+        int[] j = {0}; //inner loop
+        int[] pass = {0}; //outer
+
         Timeline[] timeline = new Timeline[1];
         timeline[0] = new Timeline(
                 new KeyFrame(Duration.seconds(0.5), event -> {
-//                    Stop condition to prevent exception
-                    if (j[0] >= values.length - 1) {
+                    if(pass[0] >= values.length -1 ){
+                        for(Rectangle bar : bars){
+                            bar.setFill(Color.GREEN);
+                        }
                         timeline[0].stop();
                         return;
                     }
-//                    Resetting the colors of the bars
-
-                    for(Rectangle bar : bars){
-                        bar.setFill(Color.BLUE);
+//                    Reset only unsorted part color
+                    for(int k = 0 ; k <values.length - pass[0]; k++){
+                        bars[k].setFill(Color.CORNFLOWERBLUE);
                     }
 //                    highlight the bars that are being compared
                     bars[j[0]].setFill(Color.RED);
                     bars[j[0]+1].setFill(Color.RED);
+
+//                    Stop condition to prevent exception
+//                    if (j[0] >= values.length - 1) {
+//                        timeline[0].stop();
+//                        return;
+//                    }
 
 //                    Swap values in the array
                     if(values[j[0]] > values[j[0] + 1]) {
@@ -72,7 +81,13 @@ public class AlgoVisApplication extends Application {
                     }
 //                    next comparison
                     j[0]++;
-//                    stop after one pass
+//                    end of one pass
+                    if(j[0] >= values.length - pass[0] - 1){
+
+                        bars[values.length - pass[0] - 1].setFill(Color.GREEN);
+                        j[0] = 0;
+                        pass[0]++;
+                    }
                 })
 
         );
