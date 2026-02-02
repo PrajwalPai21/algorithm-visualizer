@@ -4,16 +4,17 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 //import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-
 import javafx.application.Application;
-import org.w3c.dom.css.Rect;
+import java.util.Random;
 
 public class AlgoVisApplication extends Application {
 
@@ -24,38 +25,156 @@ public class AlgoVisApplication extends Application {
 //    Inner and outer loop index
     private int j = 0;
     private int pass = 0;
+    private int comparisons = 0;
+
+//    for ui
+    private Label algoLabel;
+    private Label infoLabel;
+    private Slider speedSlider;
+    private Slider sizeSlider;
+    private Button resetButton;
+    private Pane root;
+    private ComboBox<String> algoDropdown;
+    private static final int MAX_BAR_HEIGHT = 180;
 
     @Override
     public void start(Stage stage) {
-        Pane root = new Pane();
+        root = new Pane();
+//      Method Calls
+        createLabels();
+        createSpeedSlider();
+        createSizeSlider();
+        createResetButton();
 
-        values = new int[]{50, 40, 30, 20, 10}; //Height of the bars
+//        createAlgorithmDropdown();
 
-        createBars(root);
+        generateArray(10); //this wil be the starting size
+        createBars();
         startBubbleSort();
-        Scene scene = new Scene(root, 400, 300);
+
+
+        speedSlider.valueProperty().addListener((
+                obs,
+                oldVal,
+                newVal) -> {
+            if(timeline != null)
+                timeline.setRate(newVal.doubleValue());
+        });
+
+        Scene scene = new Scene(root, 600, 360);
         stage.setScene(scene);
         stage.setTitle("Algorithm Visualizer");
         stage.show();
     }
 
-    private void createBars(Pane root) {
+    private void createLabels() {
+        algoLabel = new Label("Bubble Sort");
+        algoLabel.setLayoutX(10);
+        algoLabel.setLayoutY(10);
+        algoLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold");
+
+        infoLabel = new Label("Pass: 0 | Comparisons: 0");
+        infoLabel.setLayoutX(10);
+        infoLabel.setLayoutY(32);
+        infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555");
+
+        root.getChildren().addAll(algoLabel, infoLabel);
+    }
+
+    private void createSpeedSlider() {
+        speedSlider = new Slider(0.2,2.0,1.0);
+        speedSlider.setLayoutX(120);
+        speedSlider.setLayoutY(320);
+        speedSlider.setPrefWidth(200);
+
+        Label speedLabel = new Label("Speed");
+        speedLabel.setLayoutX(70);
+        speedLabel.setLayoutY(318);
+//        speedSlider.setStyle("-fx-font-size: 12px;");
+
+        root.getChildren().addAll(speedLabel, speedSlider);
+    }
+
+    private void createSizeSlider() {
+        sizeSlider = new Slider(5,40,10);
+        sizeSlider.setLayoutX(380);
+        sizeSlider.setLayoutY(320);
+        sizeSlider.setPrefWidth(150);
+
+        sizeSlider.setMajorTickUnit(5);
+//        sizeSlider.setMinorTickCount(0);
+        sizeSlider.setSnapToTicks(true);
+
+        Label sizeLabel = new Label("Size");
+        sizeLabel.setLayoutX(340);
+        sizeLabel.setLayoutY(318);
+
+        root.getChildren().addAll(sizeLabel, sizeSlider);
+    }
+
+    private void createResetButton(){
+        resetButton = new Button("Reset");
+        resetButton.setLayoutX(530);
+        resetButton.setLayoutY(316);
+
+        resetButton.setOnAction(e -> reset());
+        root.getChildren().add(resetButton);
+    }
+
+
+
+    private void generateArray(int size){
+        Random random = new Random();
+        values = new int[size];
+        for(int i = 0; i < size; i++){
+            values[i] = random.nextInt(MAX_BAR_HEIGHT - 20) + 20;
+        }
+    }
+
+    private void createBars() {
         bars = new Rectangle[values.length];
-        int x = 20;
+
+        double width = 560.0/values.length;
+        double x = 20;
+
         for (int i = 0; i < values.length; i++) {
-            Rectangle bar = new Rectangle(x, 200 - values[i], 40, values[i]); //position
+            Rectangle bar = new Rectangle(
+                    x,
+                    260 - values[i],
+                    width - 4,
+                    values[i]
+            ); //position
             bar.setFill(Color.CORNFLOWERBLUE);
             bars[i] = bar;
             root.getChildren().add(bar);
-            x += 50; //Gap between each bar
+            x += width; //Gap between each bar
         }
+    }
+
+    private void reset(){
+        if(timeline != null)
+            timeline.stop();
+
+        algoLabel.setText("Bubble Sort");
+
+        root.getChildren().removeIf(n -> n instanceof Rectangle);
+
+        int newSize = (int) sizeSlider.getValue();
+        generateArray(newSize);
+        createBars();
+
+        comparisons = 0;
+        infoLabel.setText("Pass: 0 | Comparisons: 0");
+        startBubbleSort();
     }
 
     private void startBubbleSort() {
         j = 0;
         pass = 0;
+        comparisons = 0;
+
         timeline = new Timeline(
-                new KeyFrame(Duration.seconds(0.5), e -> bubbleSortStep())
+                new KeyFrame(Duration.seconds(1), e -> bubbleSortStep())
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -66,11 +185,15 @@ public class AlgoVisApplication extends Application {
         if (pass >= values.length - 1) {
             for (Rectangle bar : bars)
                 bar.setFill(Color.GREEN);
+            infoLabel.setText("Sorted: ✔ | Comparisons: "+ comparisons );
             timeline.stop();
             return;
         }
         resetColors(); //method need to be created
         highlight(j, j + 1); // method need to create
+
+        comparisons++;
+        infoLabel.setText("Pass: "+ (pass + 1) + " | Comparisons: "+ comparisons);
 
         if (values[j] > values[j + 1])
             swap(j, j + 1);
