@@ -1,5 +1,6 @@
 package com.algovis.algorithmvisualizer;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 //import javafx.fxml.FXMLLoader;
@@ -33,9 +34,12 @@ public class AlgoVisApplication extends Application {
     private Slider speedSlider;
     private Slider sizeSlider;
     private Button resetButton;
+
+    private Button playPauseButton;
+
     private Pane root;
     private ComboBox<String> algoDropdown;
-    private static final int MAX_BAR_HEIGHT = 180;
+    private static final int MAX_BAR_HEIGHT = 200;
 
     @Override
     public void start(Stage stage) {
@@ -45,7 +49,7 @@ public class AlgoVisApplication extends Application {
         createSpeedSlider();
         createSizeSlider();
         createResetButton();
-
+        createPlayPauseButton();
 //        createAlgorithmDropdown();
 
         generateArray(10); //this wil be the starting size
@@ -112,16 +116,56 @@ public class AlgoVisApplication extends Application {
         root.getChildren().addAll(sizeLabel, sizeSlider);
     }
 
+    private void createPlayPauseButton(){
+        playPauseButton = new Button("Pause"); //Initial State of the button
+        playPauseButton.setLayoutX(10);
+        playPauseButton.setLayoutY(50);
+        playPauseButton.setOnAction(event -> playPauseMethod());
+
+
+        root.getChildren().add(playPauseButton);
+    }
+
+    private void playPauseMethod(){
+//      If someone clicks before timeline is created (future changes), this can crash.
+        if(timeline == null)
+            return;
+
+        if(timeline.getStatus() == Animation.Status.RUNNING){
+            timeline.pause();
+            playPauseButton.setText("Play");
+        }
+        else{
+            timeline.play();
+            playPauseButton.setText("Pause");
+        }
+    }
+
     private void createResetButton(){
         resetButton = new Button("Reset");
         resetButton.setLayoutX(530);
         resetButton.setLayoutY(316);
 
-        resetButton.setOnAction(e -> reset());
+        resetButton.setOnAction(event -> reset());
         root.getChildren().add(resetButton);
     }
 
+    private void reset(){
+        if(timeline != null)
+            timeline.stop();
 
+        algoLabel.setText("Bubble Sort");
+
+        root.getChildren().removeIf(n -> n instanceof Rectangle);
+
+        int newSize = (int) sizeSlider.getValue();
+        generateArray(newSize);
+        createBars();
+
+        comparisons = 0;
+        infoLabel.setText("Pass: 0 | Comparisons: 0");
+        startBubbleSort();
+    }
 
     private void generateArray(int size){
         Random random = new Random();
@@ -151,22 +195,7 @@ public class AlgoVisApplication extends Application {
         }
     }
 
-    private void reset(){
-        if(timeline != null)
-            timeline.stop();
 
-        algoLabel.setText("Bubble Sort");
-
-        root.getChildren().removeIf(n -> n instanceof Rectangle);
-
-        int newSize = (int) sizeSlider.getValue();
-        generateArray(newSize);
-        createBars();
-
-        comparisons = 0;
-        infoLabel.setText("Pass: 0 | Comparisons: 0");
-        startBubbleSort();
-    }
 
     private void startBubbleSort() {
         j = 0;
@@ -222,7 +251,6 @@ public class AlgoVisApplication extends Application {
         int temp = values[i];
         values[i] = values[j];
         values[j] = temp;
-
 //                    Swap bar positions
         double x1 = bars[i].getX();
         double x2 = bars[j].getX();
