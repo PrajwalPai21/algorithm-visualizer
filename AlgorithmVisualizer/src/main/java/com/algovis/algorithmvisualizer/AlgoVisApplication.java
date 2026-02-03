@@ -1,5 +1,6 @@
 package com.algovis.algorithmvisualizer;
 
+import com.algovis.algorithmvisualizer.ui.MenuView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -19,6 +20,9 @@ import java.util.Random;
 
 public class AlgoVisApplication extends Application {
 
+    private Stage primaryStage; //swithcing screens
+
+//    sorting variables
     private int[] values;
     private Rectangle[] bars;
     private Timeline timeline;
@@ -29,20 +33,29 @@ public class AlgoVisApplication extends Application {
     private int comparisons = 0;
 
 //    for ui
+    private Pane root;
     private Label algoLabel;
     private Label infoLabel;
     private Slider speedSlider;
     private Slider sizeSlider;
     private Button resetButton;
-
     private Button playPauseButton;
 
-    private Pane root;
-    private ComboBox<String> algoDropdown;
+//    private ComboBox<String> algoDropdown;
     private static final int MAX_BAR_HEIGHT = 200;
 
     @Override
     public void start(Stage stage) {
+
+        this.primaryStage = stage;
+        MenuView menuView = new MenuView(this::showVisualizer);
+        Scene scene = new Scene(menuView, 600, 360);
+        stage.setScene(scene);
+        stage.setTitle("Algorithm Visualizer");
+        stage.show();
+    }
+
+    public void showVisualizer(String algorithmName) {
         root = new Pane();
 //      Method Calls
         createLabels();
@@ -64,11 +77,8 @@ public class AlgoVisApplication extends Application {
             if(timeline != null)
                 timeline.setRate(newVal.doubleValue());
         });
-
         Scene scene = new Scene(root, 600, 360);
-        stage.setScene(scene);
-        stage.setTitle("Algorithm Visualizer");
-        stage.show();
+        primaryStage.setScene(scene);
     }
 
     private void createLabels() {
@@ -194,8 +204,6 @@ public class AlgoVisApplication extends Application {
             x += width; //Gap between each bar
         }
     }
-
-
 
     private void startBubbleSort() {
         j = 0;
