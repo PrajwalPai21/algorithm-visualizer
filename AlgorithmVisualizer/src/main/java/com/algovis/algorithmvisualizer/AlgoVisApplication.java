@@ -68,7 +68,7 @@ public class AlgoVisApplication extends Application {
         generateArray(10); //this wil be the starting size
         createBars();
         startBubbleSort();
-
+        createBackButton();
 
         speedSlider.valueProperty().addListener((
                 obs,
@@ -79,6 +79,27 @@ public class AlgoVisApplication extends Application {
         });
         Scene scene = new Scene(root, 600, 360);
         primaryStage.setScene(scene);
+    }
+
+    public void showMenu(){
+        MenuView menuView = new MenuView(this::showVisualizer);
+        Scene scene = new Scene(menuView, 600, 360);
+        primaryStage.setScene(scene);
+    }
+
+    private void createBackButton(){
+        Button backButton = new Button("Back");
+        backButton.setLayoutX(10);
+        backButton.setLayoutY(80);
+
+        backButton.setOnAction(event->{
+            if(timeline != null)
+                timeline.stop();
+
+            showMenu();
+        });
+        root.getChildren().add(backButton);
+
     }
 
     private void createLabels() {
@@ -270,4 +291,5 @@ public class AlgoVisApplication extends Application {
         bars[i] = bars[j];
         bars[j] = tempBar;
     }
+
 }
