@@ -32,6 +32,11 @@ public class AlgoVisApplication extends Application {
     private int pass = 0;
     private int comparisons = 0;
 
+//    Selection Sort starting state
+    private int selI = 0; // current pos
+    private int selJ = 1; // scanning index
+    private int minIndex = 0; // smallest
+
 //    for ui
     private Pane root;
     private Label algoLabel;
@@ -40,6 +45,7 @@ public class AlgoVisApplication extends Application {
     private Slider sizeSlider;
     private Button resetButton;
     private Button playPauseButton;
+    private String currentAlgorithmSelected;
 
 //    private ComboBox<String> algoDropdown;
     private static final int MAX_BAR_HEIGHT = 200;
@@ -56,6 +62,7 @@ public class AlgoVisApplication extends Application {
     }
 
     public void showVisualizer(String algorithmName) {
+        this.currentAlgorithmSelected = algorithmName;
         root = new Pane();
 //      Method Calls
         createLabels();
@@ -63,12 +70,17 @@ public class AlgoVisApplication extends Application {
         createSizeSlider();
         createResetButton();
         createPlayPauseButton();
-//        createAlgorithmDropdown();
-
         generateArray(10); //this wil be the starting size
         createBars();
         startBubbleSort();
         createBackButton();
+
+        algoLabel.setText(algorithmName);
+        if(algorithmName.equals(currentAlgorithmSelected))
+            startBubbleSort();
+        else
+            startSelectionSort();
+
 
         speedSlider.valueProperty().addListener((
                 obs,
@@ -263,6 +275,55 @@ public class AlgoVisApplication extends Application {
             j = 0;
             pass++;
         }
+    }
+
+    private void startSelectionSort(){
+        selI = 0;
+        selJ = selI + 1;
+        minIndex = selI;
+        comparisons = 0;
+        timeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> selectionSortStep())
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+    }
+
+    private void selectionSortStep() {
+//        after finish
+        if(selI >= values.length - 1){
+            for (Rectangle bar : bars)
+                bar.setFill(Color.GREEN);
+
+            infoLabel.setText("Sorted ✔ | Comparisons: "+ comparisons);
+            timeline.stop();
+            return;
+        }
+        resetColors();
+
+//        current pos and min
+        bars[selI].setFill(Color.ORANGE);
+        bars[minIndex].setFill(Color.RED);
+
+        if(values[selJ] < values[minIndex]){
+            minIndex = selJ;
+        }
+        comparisons++;
+        infoLabel.setText( "Position: " + (selI + 1) +
+                " | Comparisons: " + comparisons
+        );
+
+        selJ++;
+
+        if(selJ >= values.length){
+            if(minIndex != selI)
+                swap(selI, minIndex);
+        }
+        bars[selI].setFill(Color.GREEN);
+        selI++;
+        minIndex = selI;
+        selJ = selI + 1;
+        selJ = selJ + 1;
     }
 
     //    Other methods to reduce lines

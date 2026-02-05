@@ -26,8 +26,7 @@ public class MenuView extends Pane {
         selectionSortBtn.setPrefWidth(120);
 //        Label loading = new  Label("Loading...");
         bubbleSortBtn.setOnAction(event -> onAlgorithmSelected.accept("Bubble Sort"));
-        selectionSortBtn.setOnAction(event -> System.out.println("Selection Sort click"));
-
+        selectionSortBtn.setOnAction(event -> onAlgorithmSelected.accept("Selection Sort"));
         getChildren().addAll(title,bubbleSortBtn,selectionSortBtn);
     }
 }
