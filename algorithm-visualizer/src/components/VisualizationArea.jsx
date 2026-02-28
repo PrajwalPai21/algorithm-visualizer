@@ -13,8 +13,16 @@ function VisualizationArea({ array }) {
               width: "25px",
               margin: "0 2px",
               backgroundColor: "steelblue",
+              display: "flex",
+              alignItems: "flex-end", //pushes the number to the bottom of bar
+              justifyContent: "center",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold",
             }}
-          />
+          >
+            {value}
+          </div>
         ),
       )}
     </div>
