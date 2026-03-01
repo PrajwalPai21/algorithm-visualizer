@@ -4,6 +4,10 @@ import { bubbleSortFunc } from "../algorithms/bubbleSort";
 
 const SortingPage = () => {
   const [array, setArray] = useState([]);
+  const [comparing, setComparing] = useState([]);
+  const [swapping, setSwapping] = useState([]);
+  const [comparisons, setComparisons] = useState(0);
+  const [swaps, setSwaps] = useState(0);
 
   function generateArrayNum() {
     const newArray = [];
@@ -23,11 +27,19 @@ const SortingPage = () => {
     const interval = setInterval(() => {
       if (i >= steps.length) {
         clearInterval(interval);
+        setComparing([]);
+        setSwapping([]);
         return;
       }
-      setArray(steps[i].array);
+      const step = steps[i];
+
+      setArray(step.array);
+      setComparing(step.comparing || []);
+      setSwapping(step.swapping || []);
+      setComparisons(step.comparisons);
+      setSwaps(step.swaps);
       i++;
-    }, 10); //speed animation
+    }, 1000);
   }
 
   return (
@@ -41,7 +53,15 @@ const SortingPage = () => {
           Sort
         </button>
       </div>
-      <VisualizationArea array={array} />
+      <div style={{ marginBottom: "15px" }}>
+        <strong>Comparisons:</strong> {comparisons} |<strong> Swaps:</strong>{" "}
+        {swaps}
+      </div>
+      <VisualizationArea
+        array={array}
+        comparing={comparing}
+        swapping={swapping}
+      />
     </div>
   );
 };
