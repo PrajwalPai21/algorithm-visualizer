@@ -28,4 +28,13 @@ public class UserService {
         user.setPassword(encoder.encode(user.getPassword()));
         return repo.save(user);
     }
+
+    public UserModel login(String username, String password) {
+        UserModel user = repo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Username not found"));
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Password not match");
+        }
+        return user;
+    }
 }
