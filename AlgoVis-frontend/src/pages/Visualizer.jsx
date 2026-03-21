@@ -7,10 +7,10 @@ function Visualizer() {
   const [sortedIndices, setSortedIndices] = useState([]);
   const [isSorting, setIsSorting] = useState(false);
   const [algorithm, setAlgorithm] = useState("bubble");
+  const [currentLine, setCurrentLine] = useState(-1);
 
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  // Auto-generate array on load
   useEffect(() => {
     generateArray();
   }, []);
@@ -25,25 +25,37 @@ function Visualizer() {
     setArray(arr);
     setSortedIndices([]);
     setActiveIndices([]);
+    setCurrentLine(-1);
   };
 
+  // 🔥 FIXED BUBBLE SORT (SYNCED WITH C CODE)
   const bubbleSort = async () => {
-    if (array.length === 0) return;
-
     setIsSorting(true);
     let arr = [...array];
     let sorted = [];
 
+    setCurrentLine(0);
     for (let i = 0; i < arr.length; i++) {
+      setCurrentLine(1);
       for (let j = 0; j < arr.length - i - 1; j++) {
+        setCurrentLine(2);
         setActiveIndices([j, j + 1]);
+        await sleep(speed);
 
         if (arr[j] > arr[j + 1]) {
-          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-          setArray([...arr]);
-        }
+          setCurrentLine(3);
+          let temp = arr[j];
+          await sleep(speed);
 
-        await sleep(speed);
+          setCurrentLine(4);
+          arr[j] = arr[j + 1];
+          await sleep(speed);
+
+          setCurrentLine(5);
+          arr[j + 1] = temp;
+          setArray([...arr]);
+          await sleep(speed);
+        }
       }
 
       sorted.push(arr.length - i - 1);
@@ -51,37 +63,54 @@ function Visualizer() {
     }
 
     setActiveIndices([]);
+    setCurrentLine(-1);
     setIsSorting(false);
   };
 
+  // 🔥 FIXED SELECTION SORT (SYNCED WITH C CODE)
   const selectionSort = async () => {
-    if (array.length === 0) return;
-
     setIsSorting(true);
     let arr = [...array];
     let sorted = [];
 
+    setCurrentLine(0);
     for (let i = 0; i < arr.length; i++) {
+      setCurrentLine(1);
       let minIndex = i;
+      await sleep(speed);
 
+      setCurrentLine(2);
       for (let j = i + 1; j < arr.length; j++) {
+        setCurrentLine(3);
         setActiveIndices([minIndex, j]);
+        await sleep(speed);
 
         if (arr[j] < arr[minIndex]) {
+          setCurrentLine(4);
           minIndex = j;
+          await sleep(speed);
         }
-
-        await sleep(speed);
       }
 
-      [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+      setCurrentLine(6);
+      let temp = arr[i];
+      await sleep(speed);
+
+      setCurrentLine(7);
+      arr[i] = arr[minIndex];
+      await sleep(speed);
+
+      setCurrentLine(8);
+      arr[minIndex] = temp;
       setArray([...arr]);
+      await sleep(speed);
 
       sorted.push(i);
       setSortedIndices([...sorted]);
     }
 
     setActiveIndices([]);
+    setCurrentLine(-1);
     setIsSorting(false);
   };
 
@@ -90,6 +119,7 @@ function Visualizer() {
     setArray([]);
     setSortedIndices([]);
     setActiveIndices([]);
+    setCurrentLine(-1);
   };
 
   const startSorting = () => {
@@ -97,85 +127,126 @@ function Visualizer() {
     else if (algorithm === "selection") selectionSort();
   };
 
+  const bubbleSortCode = [
+    "for (int i = 0; i < n; i++) {",
+    "    for (int j = 0; j < n - i - 1; j++) {",
+    "        if (arr[j] > arr[j + 1]) {",
+    "            int temp = arr[j];",
+    "            arr[j] = arr[j + 1];",
+    "            arr[j + 1] = temp;",
+    "        }",
+    "    }",
+    "}",
+  ];
+
+  const selectionSortCode = [
+    "for (int i = 0; i < n; i++) {",
+    "    int minIndex = i;",
+    "    for (int j = i + 1; j < n; j++) {",
+    "        if (arr[j] < arr[minIndex]) {",
+    "            minIndex = j;",
+    "        }",
+    "    }",
+    "    int temp = arr[i];",
+    "    arr[i] = arr[minIndex];",
+    "    arr[minIndex] = temp;",
+    "}",
+  ];
+
+  const currentCode =
+    algorithm === "bubble" ? bubbleSortCode : selectionSortCode;
+
   return (
     <div className="p-6 text-white">
       <h2 className="text-2xl font-bold mb-4 capitalize">
         {algorithm} Sort Visualizer
       </h2>
 
-      {/* Empty State */}
-      {array.length === 0 && (
-        <p className="text-gray-400 mb-4">
-          Click "Generate" to create an array
-        </p>
-      )}
+      <div className="flex gap-6">
+        {/* LEFT */}
+        <div className="w-2/3">
+          <div className="bg-gray-800 p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-center">
+            <select
+              value={algorithm}
+              onChange={(e) => setAlgorithm(e.target.value)}
+              className="bg-gray-700 text-white px-3 py-2 rounded border border-gray-500"
+            >
+              <option value="bubble">Bubble Sort</option>
+              <option value="selection">Selection Sort</option>
+            </select>
 
-      {/* Controls */}
-      <div className="bg-gray-800 p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-center">
-        <select
-          value={algorithm}
-          onChange={(e) => setAlgorithm(e.target.value)}
-          className="bg-gray-700 text-white px-3 py-2 rounded border border-gray-500"
-        >
-          <option value="bubble">Bubble Sort</option>
-          <option value="selection">Selection Sort</option>
-        </select>
+            <button
+              onClick={generateArray}
+              disabled={isSorting}
+              className="bg-blue-500 px-4 py-2 rounded"
+            >
+              Generate
+            </button>
 
-        <button
-          onClick={generateArray}
-          disabled={isSorting}
-          className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          Generate
-        </button>
+            <button
+              onClick={startSorting}
+              disabled={isSorting}
+              className="bg-green-500 px-4 py-2 rounded"
+            >
+              Start
+            </button>
 
-        <button
-          onClick={startSorting}
-          disabled={isSorting}
-          className="bg-green-500 px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
-        >
-          Start
-        </button>
+            <button
+              onClick={resetArray}
+              disabled={isSorting}
+              className="bg-red-500 px-4 py-2 rounded"
+            >
+              Reset
+            </button>
 
-        <button
-          onClick={resetArray}
-          disabled={isSorting}
-          className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
-        >
-          Reset
-        </button>
+            <div className="flex items-center gap-2">
+              <span>Speed:</span>
+              <input
+                type="range"
+                min="10"
+                max="200"
+                value={speed}
+                disabled={isSorting}
+                onChange={(e) => setSpeed(Number(e.target.value))}
+              />
+              <span>{speed} ms</span>
+            </div>
+          </div>
 
-        {/* Speed */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Speed:</span>
-          <input
-            type="range"
-            min="10"
-            max="200"
-            value={speed}
-            disabled={isSorting}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-          />
-          <span className="text-sm text-gray-300">{speed} ms</span>
+          {/* Bars */}
+          <div className="flex items-end h-96 bg-gray-800 p-4 rounded-lg">
+            {array.map((value, index) => {
+              let color = "bg-blue-400";
+              if (sortedIndices.includes(index)) color = "bg-green-500";
+              else if (activeIndices.includes(index)) color = "bg-red-500";
+
+              return (
+                <div
+                  key={index}
+                  style={{ height: `${value}px`, width: "12px" }}
+                  className={`${color} mx-px`}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Bars */}
-      <div className="flex items-end h-96 border border-gray-700 p-4 bg-gray-800 rounded-lg">
-        {array.map((value, index) => {
-          let color = "bg-blue-400";
+        <div className="w-1/3 bg-gray-900 p-4 rounded-lg font-mono text-sm overflow-auto">
+          <h3 className="mb-3 font-bold text-lg">Code</h3>
 
-          if (sortedIndices.includes(index)) color = "bg-green-500";
-          else if (activeIndices.includes(index)) color = "bg-red-500";
-
-          return (
+          {currentCode.map((line, index) => (
             <div
               key={index}
-              style={{ height: `${value}px`, width: "12px" }}
-              className={`${color} mx-px transition-all duration-75 hover:opacity-80`}
-            ></div>
-          );
-        })}
+              className={`px-2 py-1 rounded whitespace-pre ${
+                currentLine === index
+                  ? "bg-yellow-500 text-black"
+                  : "text-gray-300"
+              }`}
+            >
+              {line}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
