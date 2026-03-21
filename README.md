@@ -49,6 +49,18 @@ It also integrates a backend with authentication, making it a complete full-stac
 
 ---
 
+## ⚙️ How to Run the Project 
+
+git clone https://github.com/PrajwalPai21/algorithm-visualizer
+cd algorithm-visualizer
+
+cd AlgoVis-backend
+./mvnw spring-boot:run
+
+cd AlgoVis-frontend
+npm install
+npm run dev
+
 ## ⚙️ Architecture
 
 ```text
@@ -60,15 +72,6 @@ Spring Boot Backend
        ↓
 JWT Authentication (Security Filter)
        ↓
-MySQL Database    
+MySQL Database   
 
-git clone https://github.com/PrajwalPai21/algorithm-visualizer
-cd algorithm-visualizer
-
-cd AlgoVis-backend
-./mvnw spring-boot:run
-
-cd AlgoVis-frontend
-npm install
-npm run dev
 
