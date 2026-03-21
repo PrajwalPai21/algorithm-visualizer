@@ -1,37 +1,74 @@
-Algorithm Visualizer (JavaFX)
+# 🚀 Algorithm Visualizer (Full Stack)
 
-This is a small JavaFX project I built to better understand how sorting algorithms actually work internally.
-Instead of just looking at code or theory, the goal here was to see each comparison and swap happen on screen.
-Right now, the project focuses on Bubble Sort, visualized step by step using animated bars.
+A full-stack web application that visualizes sorting algorithms in real-time with an interactive UI and secure JWT-based authentication.
 
-What it does?
-Displays an array as vertical bars
-Compares elements one step at a time
-Highlights the bars being compared
-Animates swaps instead of instantly changing values
-Marks elements as sorted once they reach their final position
-The visualization runs slowly on purpose so each step is easy to follow.
+---
 
-Tech used
-Java
-JavaFX
-Maven
-IntelliJ IDEA
+## 🧠 Overview
 
-No frameworks or libraries beyond JavaFX, the focus is on understanding, not abstraction.
+This project demonstrates how sorting algorithms work through animated visualizations.  
+It also integrates a backend with authentication, making it a complete full-stack application.
 
-How the visualization works
-Each number in the array is represented by a bar
-The height of the bar corresponds to the value
-The algorithm runs one comparison per time step using a JavaFX Timeline
-When two elements are swapped:
-the data array is updated
-the bars exchange positions on screen
-Sorted elements are marked in green and ignored in future passes
-The code keeps the algorithm logic and the UI strictly in sync, which was the main learning goal.
+---
 
-Running the project
-Open the project in IntelliJ IDEA
-Make sure JavaFX is properly configured (via Maven)
-Run the main / launcher class
-The visualization starts automatically
+## ✨ Features
+
+- 🔐 User Authentication (JWT-based login)
+- 📊 Real-time sorting visualization
+- ⚡ Adjustable speed control
+- 🎯 Interactive UI with dynamic updates
+- 🔄 Supported Algorithms:
+  - Bubble Sort
+  - Selection Sort
+- 🧹 Reset & regenerate arrays
+- 👤 Logged-in user display
+
+---
+
+## 🛠️ Tech Stack
+
+### 🔹 Frontend
+- React (Vite)
+- Tailwind CSS
+- Axios
+
+### 🔹 Backend
+- Spring Boot
+- Spring Security
+- JWT (JSON Web Tokens)
+- JPA / Hibernate
+
+### 🔹 Database
+- MySQL
+
+---
+
+## 📸 Screenshots
+
+> Adding soon
+
+---
+
+## ⚙️ Architecture
+
+```text
+Frontend (React)
+       ↓
+Axios API Calls
+       ↓
+Spring Boot Backend
+       ↓
+JWT Authentication (Security Filter)
+       ↓
+MySQL Database    
+
+git clone https://github.com/PrajwalPai21/algorithm-visualizer
+cd algorithm-visualizer
+
+cd AlgoVis-backend
+./mvnw spring-boot:run
+
+cd AlgoVis-frontend
+npm install
+npm run dev
+
