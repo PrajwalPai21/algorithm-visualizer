@@ -14,7 +14,7 @@ function App() {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Navbar */}
       <div className="flex justify-between items-center px-6 py-4 bg-black shadow">
-        <h1 className="text-xl font-bold tracking-wide">🚀 Algo Visualizer</h1>
+        <h1 className="text-xl font-bold tracking-wide">Algo Visualizer</h1>
 
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-300">

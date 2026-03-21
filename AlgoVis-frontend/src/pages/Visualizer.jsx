@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function Visualizer() {
   const [array, setArray] = useState([]);
@@ -8,15 +8,29 @@ function Visualizer() {
   const [isSorting, setIsSorting] = useState(false);
   const [algorithm, setAlgorithm] = useState("bubble");
   const [currentLine, setCurrentLine] = useState(-1);
+  const [isPaused, setIsPaused] = useState(false);
 
-  const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+  const pauseRef = useRef(false);
+  const stopRef = useRef(false); // 🔥 NEW (CRITICAL)
+
+  const sleep = async (ms) => {
+    for (let i = 0; i < ms; i += 10) {
+      if (stopRef.current) return; // 🔥 STOP CHECK
+
+      while (pauseRef.current) {
+        await new Promise((res) => setTimeout(res, 50));
+      }
+
+      await new Promise((res) => setTimeout(res, 10));
+    }
+  };
 
   useEffect(() => {
     generateArray();
   }, []);
 
   const generateArray = () => {
-    if (isSorting) return;
+    stopRef.current = true; // 🔥 STOP ANY RUNNING SORT
 
     const arr = Array.from({ length: 40 }, () =>
       Math.floor(Math.random() * 300),
@@ -26,18 +40,30 @@ function Visualizer() {
     setSortedIndices([]);
     setActiveIndices([]);
     setCurrentLine(-1);
+
+    pauseRef.current = false;
+    setIsPaused(false);
+    setIsSorting(false);
   };
 
-  // 🔥 FIXED BUBBLE SORT (SYNCED WITH C CODE)
   const bubbleSort = async () => {
     setIsSorting(true);
+    stopRef.current = false; // 🔥 RESET STOP
+    pauseRef.current = false;
+
     let arr = [...array];
     let sorted = [];
 
     setCurrentLine(0);
+
     for (let i = 0; i < arr.length; i++) {
+      if (stopRef.current) return; // 🔥 STOP
+
       setCurrentLine(1);
+
       for (let j = 0; j < arr.length - i - 1; j++) {
+        if (stopRef.current) return;
+
         setCurrentLine(2);
         setActiveIndices([j, j + 1]);
         await sleep(speed);
@@ -67,20 +93,28 @@ function Visualizer() {
     setIsSorting(false);
   };
 
-  // 🔥 FIXED SELECTION SORT (SYNCED WITH C CODE)
   const selectionSort = async () => {
     setIsSorting(true);
+    stopRef.current = false;
+    pauseRef.current = false;
+
     let arr = [...array];
     let sorted = [];
 
     setCurrentLine(0);
+
     for (let i = 0; i < arr.length; i++) {
+      if (stopRef.current) return;
+
       setCurrentLine(1);
       let minIndex = i;
       await sleep(speed);
 
       setCurrentLine(2);
+
       for (let j = i + 1; j < arr.length; j++) {
+        if (stopRef.current) return;
+
         setCurrentLine(3);
         setActiveIndices([minIndex, j]);
         await sleep(speed);
@@ -114,17 +148,26 @@ function Visualizer() {
     setIsSorting(false);
   };
 
+  const startSorting = () => {
+    stopRef.current = false; // 🔥 IMPORTANT
+    pauseRef.current = false;
+
+    setIsPaused(false);
+
+    if (algorithm === "bubble") bubbleSort();
+    else if (algorithm === "selection") selectionSort();
+  };
+
   const resetArray = () => {
-    if (isSorting) return;
+    stopRef.current = true; // 🔥 HARD STOP
+    pauseRef.current = false;
+
+    setIsPaused(false);
+    setIsSorting(false);
     setArray([]);
     setSortedIndices([]);
     setActiveIndices([]);
     setCurrentLine(-1);
-  };
-
-  const startSorting = () => {
-    if (algorithm === "bubble") bubbleSort();
-    else if (algorithm === "selection") selectionSort();
   };
 
   const bubbleSortCode = [
@@ -163,13 +206,12 @@ function Visualizer() {
       </h2>
 
       <div className="flex gap-6">
-        {/* LEFT */}
         <div className="w-2/3">
-          <div className="bg-gray-800 p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4 items-center">
+          <div className="bg-gray-800 p-4 rounded-lg mb-6 flex flex-wrap gap-4 items-center">
             <select
               value={algorithm}
               onChange={(e) => setAlgorithm(e.target.value)}
-              className="bg-gray-700 text-white px-3 py-2 rounded border border-gray-500"
+              className="bg-gray-700 px-3 py-2 rounded"
             >
               <option value="bubble">Bubble Sort</option>
               <option value="selection">Selection Sort</option>
@@ -177,7 +219,6 @@ function Visualizer() {
 
             <button
               onClick={generateArray}
-              disabled={isSorting}
               className="bg-blue-500 px-4 py-2 rounded"
             >
               Generate
@@ -185,15 +226,24 @@ function Visualizer() {
 
             <button
               onClick={startSorting}
-              disabled={isSorting}
               className="bg-green-500 px-4 py-2 rounded"
             >
               Start
             </button>
 
             <button
+              onClick={() => {
+                pauseRef.current = !pauseRef.current;
+                setIsPaused(!isPaused);
+              }}
+              disabled={!isSorting}
+              className="bg-yellow-500 px-4 py-2 rounded"
+            >
+              {isPaused ? "Resume" : "Pause"}
+            </button>
+
+            <button
               onClick={resetArray}
-              disabled={isSorting}
               className="bg-red-500 px-4 py-2 rounded"
             >
               Reset
@@ -206,14 +256,12 @@ function Visualizer() {
                 min="10"
                 max="200"
                 value={speed}
-                disabled={isSorting}
                 onChange={(e) => setSpeed(Number(e.target.value))}
               />
               <span>{speed} ms</span>
             </div>
           </div>
 
-          {/* Bars */}
           <div className="flex items-end h-96 bg-gray-800 p-4 rounded-lg">
             {array.map((value, index) => {
               let color = "bg-blue-400";
